@@ -26,6 +26,22 @@ post '/comments' do
     
     end
   
+post '/likes' do
+    post_id = params[:post_id]
+    
+    like = Like.new({ post_id: post_id, user_id: current_user.id })
+    like.save
+    
+    redirect (back)
+    
+end
+
+delete '/likes/:id' do
+    like = Like.find(params[:id])
+    like.destroy
+    redirect(back)
+end
+
 
 get '/login' do     # when a GET request comes into /login
     erb(:login)     # render app/views/login.erb
