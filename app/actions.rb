@@ -8,11 +8,28 @@ end
 get '/' do
     @posts = Post.order(created_at: :desc)
     erb(:index)
-end
+    end
+    
+post '/comments' do
+    # point values from params to variables
+    text = params[:text]
+    post_id = params[:post_id]
+    
+    # instantiate a comment with those values & assign the commend to the 'current_user'
+    comment = Comment.new({ text: text, post_id: post_id, user_id: current_user.id })
+    
+    # save the comment
+    comment.save
+    
+    # 'redirect' back to wherever we came from
+    redirect(back)
+    
+    end
+  
 
 get '/login' do     # when a GET request comes into /login
     erb(:login)     # render app/views/login.erb
-end
+    end
 
 post '/login' do    # when we submit a form with an action of /login
     username = params[:username]
@@ -29,17 +46,43 @@ post '/login' do    # when we submit a form with an action of /login
             @error_message = "Login failed."
             erb(:login)
         end
-end
+    end
 
 get '/logout' do
     session[:user_id] = nil
     redirect to('/')
-end
+    end
+
+get '/posts/new' do
+    @post = Post.new
+    erb(:"posts/new")
+    end
+
+get '/posts/:id' do
+    @post = Post.find(params[:id])  # find the post with the ID from the User
+    erb(:"posts/show")              # render app/views/posts/show.erb
+    end
+
+
+post '/posts' do
+    photo_url = params[:photo_url]
+    
+    # instantiate new Post
+    @post = Post.new({ photo_url: photo_url, user_id: current_user.id })
+    
+    # if @post validates, save
+    if @post.save
+        redirect(to('/'))
+    else
+        erb(:"posts/new")
+    end
+    
+    end
 
 get '/signup' do        # if a user navigates to the path "/signup", 
     @user = User.new    # setup empty @user object
     erb(:signup)        # render "app/views/signup.erb"
-end
+    end
 
 post '/signup' do
     
@@ -59,7 +102,9 @@ post '/signup' do
     else
         erb(:signup)
         
-    end    
+    end
     
+  
+
 end
     
